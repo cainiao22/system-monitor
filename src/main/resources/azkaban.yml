@@ -14,3 +14,4 @@ azkaban:
           - Error 0 records
           - Error writing initial node
           - Engine - prioriy set to 0, because NumberFormatException, the value is
+          - Failed to get database default, returning NoSuchObjectException
