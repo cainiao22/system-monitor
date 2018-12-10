@@ -6,6 +6,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.qdingnet.bigdata.beans.WechartMsg;
 import com.qdingnet.bigdata.component.WeChatAlarmSender;
 import com.qdingnet.bigdata.config.AzkabanProperties;
+import com.qdingnet.bigdata.enums.BinLogTypeEnum;
 import com.qdingnet.bigdata.utils.GZIPUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -34,6 +35,9 @@ public class KafkaAzkanbanLogConsumer {
     @KafkaListener(topics = {"azkaban_event_log"})
     public void onReceive(ConsumerRecord<String, String> record) throws Exception {
         JSONObject jsonObject = JSON.parseObject(record.value());
+        if(!BinLogTypeEnum.INSERT.name().equals(jsonObject.getString("type"))){
+            return;
+        }
         JSONArray data = jsonObject.getJSONArray("data");
         for (int i = 0; i < data.size(); i++) {
             JSONObject item = data.getJSONObject(i);
