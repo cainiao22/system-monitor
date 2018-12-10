@@ -39,6 +39,8 @@ public class KafkaAzkanbanLogConsumer {
             JSONObject item = data.getJSONObject(i);
             String logInfo = item.getString("log");
             String name = item.getString("name");
+            String execId = item.getString("exec_id");
+            String uploadTime = item.getString("upload_time");
             if (StringUtils.isEmpty(name)) {
                 name = item.getString("exec_id");
             }
@@ -58,8 +60,8 @@ public class KafkaAzkanbanLogConsumer {
                             }
                         }
                         WechartMsg wechartMsg = new WechartMsg("azkaban任务监控");
-                        String msg = "异常任务:%s, 错误信息:%s";
-                        msg = String.format(msg, name, s1);
+                        String msg = "project:%s,exec_id:%s,uploadTime:%s, error:%s";
+                        msg = String.format(msg, name, execId, uploadTime, s1);
                         wechartMsg.setContent(msg);
                         wechartMsg.setMobiles(azkabanProperties.getAlarmPhones());
                         wechartMsg.setTitle("azkaban任务监控");
