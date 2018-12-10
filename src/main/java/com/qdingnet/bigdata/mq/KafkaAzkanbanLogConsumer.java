@@ -66,6 +66,7 @@ public class KafkaAzkanbanLogConsumer {
                                 continue label;
                             }
                         }
+                        log.info("接收到错误信息:{}", record.value());
                         WechartMsg wechartMsg = new WechartMsg("azkaban任务监控");
                         String msg = "project:%s,exec_id:%s,uploadTime:%s, error:%s";
                         msg = String.format(msg, name, execId, uploadTime, s1);
