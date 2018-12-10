@@ -21,6 +21,18 @@ public class AzkabanProperties {
 
     private List<String> alarmPhones = new ArrayList<>();
 
+    private List<String> whitelist = new ArrayList<>();
+
+    private List<String> blacklist = new ArrayList<>();
+
+    public List<String> getAlarmPhones() {
+        return alarmPhones;
+    }
+
+    public void setAlarmPhones(List<String> alarmPhones) {
+        this.alarmPhones = alarmPhones;
+    }
+
     public List<String> getWhitelist() {
         return whitelist;
     }
@@ -29,13 +41,11 @@ public class AzkabanProperties {
         this.whitelist = whitelist;
     }
 
-    private List<String> whitelist = new ArrayList<>();
-
-    public List<String> getAlarmPhones() {
-        return alarmPhones;
+    public List<String> getBlacklist() {
+        return blacklist;
     }
 
-    public void setAlarmPhones(List<String> alarmPhones) {
-        this.alarmPhones = alarmPhones;
+    public void setBlacklist(List<String> blacklist) {
+        this.blacklist = blacklist;
     }
 }

@@ -9,6 +9,10 @@ azkaban:
         - 15011233180 #吴艳波
         - 13581973403 #刘斌侠
         - 15210658184 #周泰
+        blacklist:
+          - Error
+          - ERROR
+          - Exception
         whitelist:
           - IO_ERROR=0
           - Error 0 records

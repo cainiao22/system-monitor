@@ -53,7 +53,14 @@ public class KafkaAzkanbanLogConsumer {
                 String[] split = s.split("\n");
                 label:
                 for (String s1 : split) {
-                    if (s1.contains("ERROR") || s1.contains("Error") || s1.contains("Exception")) {
+                    boolean isBlack = false;
+                    for (String black : azkabanProperties.getBlacklist()) {
+                        if(s1.contains(black)){
+                            isBlack = true;
+                            break;
+                        }
+                    }
+                    if (isBlack) {
                         for (String white : azkabanProperties.getWhitelist()) {
                             if (s1.contains(white)) {
                                 continue label;

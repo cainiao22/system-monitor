@@ -59,6 +59,7 @@ public class SystemMonitorApplicationTests {
 
     @Test
     public void getAlarmMobiles(){
+        System.out.println(azkabanProperties.getBlacklist());
         System.out.println(azkabanProperties.getWhitelist());
     }
 
