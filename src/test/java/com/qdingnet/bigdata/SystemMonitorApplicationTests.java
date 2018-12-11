@@ -1,6 +1,7 @@
 package com.qdingnet.bigdata;
 
 import com.qdingnet.bigdata.config.AzkabanProperties;
+import com.qdingnet.bigdata.mq.KafkaAzkanbanLogConsumer;
 import com.qdingnet.bigdata.utils.GZIPUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -8,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.support.PropertySourceFactory;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.annotation.Resource;
@@ -15,11 +17,15 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class SystemMonitorApplicationTests {
+
+    @Autowired
+    RedisTemplate<String, String> redisTemplate;
 
     @Test
     public void contextLoads() {
@@ -70,6 +76,19 @@ public class SystemMonitorApplicationTests {
         mobiles.add("12314324234");
         System.out.println(mobiles.stream().collect(Collectors.joining("|")));
         System.out.println(String.join(",", mobiles));
+    }
+
+    @Autowired
+    KafkaAzkanbanLogConsumer consumer;
+
+    @Test
+    public void redisTemplateTest() throws Exception {
+        String redisKey = consumer.getRedisKey("Exception", "execId", "name");
+        String s = redisTemplate.opsForValue().get(redisKey);
+        System.out.println(s);
+        redisTemplate.opsForValue().set(redisKey, "1", 1, TimeUnit.MINUTES);
+        s = redisTemplate.opsForValue().get(redisKey);
+        System.out.println(s);
     }
 
 }

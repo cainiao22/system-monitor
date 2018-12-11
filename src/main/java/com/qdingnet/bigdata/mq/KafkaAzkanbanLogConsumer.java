@@ -18,6 +18,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author yanpf
@@ -66,11 +67,11 @@ public class KafkaAzkanbanLogConsumer {
                     boolean isBlack = false;
                     for (String black : azkabanProperties.getBlacklist()) {
                         if(s1.contains(black)){
-                            String redisKey = getRedisKey(black);
-                            String redisValue = execId + "->" + name + "->" + attempt;
-                            if(redisTemplate.opsForSet().isMember(redisKey, redisValue)){
+                            String redisKey = getRedisKey(black, execId, name);
+                            if(redisTemplate.opsForValue().get(redisKey) != null){
                                 continue label;
                             }
+                            redisTemplate.opsForValue().set(redisKey, "1", 1, TimeUnit.MINUTES);
                             isBlack = true;
                             break;
                         }
@@ -97,7 +98,7 @@ public class KafkaAzkanbanLogConsumer {
 
     }
 
-    private String getRedisKey(String ... keys) throws Exception {
+    public String getRedisKey(String ... keys) throws Exception {
         StringBuffer sb = new StringBuffer(Constants.Redis.prefix);
         sb.append("KafkaAzkanbanLogConsumer::");
         if(keys == null || keys.length == 0){
