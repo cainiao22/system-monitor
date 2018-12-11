@@ -7,10 +7,12 @@ import com.qdingnet.bigdata.beans.WechartMsg;
 import com.qdingnet.bigdata.component.WeChatAlarmSender;
 import com.qdingnet.bigdata.config.AzkabanProperties;
 import com.qdingnet.bigdata.enums.BinLogTypeEnum;
+import com.qdingnet.bigdata.utils.Constants;
 import com.qdingnet.bigdata.utils.GZIPUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.tomcat.util.codec.binary.Base64;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -32,6 +34,9 @@ public class KafkaAzkanbanLogConsumer {
     @Resource
     WeChatAlarmSender sender;
 
+    @Resource
+    RedisTemplate<String, String> redisTemplate;
+
     @KafkaListener(topics = {"azkaban_event_log"})
     public void onReceive(ConsumerRecord<String, String> record) throws Exception {
         JSONObject jsonObject = JSON.parseObject(record.value());
@@ -45,6 +50,7 @@ public class KafkaAzkanbanLogConsumer {
             String name = item.getString("name");
             String execId = item.getString("exec_id");
             String uploadTime = item.getString("upload_time");
+            String attempt = item.getString("attempt");
             if (StringUtils.isEmpty(name)) {
                 name = item.getString("exec_id");
             }
@@ -60,6 +66,11 @@ public class KafkaAzkanbanLogConsumer {
                     boolean isBlack = false;
                     for (String black : azkabanProperties.getBlacklist()) {
                         if(s1.contains(black)){
+                            String redisKey = getRedisKey(black);
+                            String redisValue = execId + "->" + name + "->" + attempt;
+                            if(redisTemplate.opsForSet().isMember(redisKey, redisValue)){
+                                continue label;
+                            }
                             isBlack = true;
                             break;
                         }
@@ -85,4 +96,24 @@ public class KafkaAzkanbanLogConsumer {
         }
 
     }
+
+    private String getRedisKey(String ... keys) throws Exception {
+        StringBuffer sb = new StringBuffer(Constants.Redis.prefix);
+        sb.append("KafkaAzkanbanLogConsumer::");
+        if(keys == null || keys.length == 0){
+            throw new Exception("redis的keys不能为空");
+        }
+
+        for (String key : keys) {
+            if(key == null){
+                key = "";
+            }
+            sb.append("::").append(Base64.encodeBase64String(key.getBytes()));
+        }
+
+        return sb.toString();
+    }
+
+
+
 }
