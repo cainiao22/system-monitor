@@ -5,12 +5,12 @@ spring:
     cluster:
       max-redirects: 3
       nodes:
-        - 10.37.253.42:6481
-        - 10.37.253.42:6482
-        - 10.37.253.42:6483
-        - 10.37.253.42:6484
-        - 10.37.253.42:6485
-        - 10.37.253.42:6486
+        - redis-cluster-bigdata-01.qiandingyun.com:6378
+        - redis-cluster-bigdata-02.qiandingyun.com:6378
+        - redis-cluster-bigdata-03.qiandingyun.com:6378
+        - redis-cluster-bigdata-04.qiandingyun.com:6378
+        - redis-cluster-bigdata-05.qiandingyun.com:6378
+        - redis-cluster-bigdata-06.qiandingyun.com:6378
     database: 0
     lettuce:
         pool:
