@@ -3,10 +3,12 @@ package com.qdingnet.bigdata.mq;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.qdingnet.bigdata.beans.AzkabanErrorInfo;
 import com.qdingnet.bigdata.beans.WechartMsg;
 import com.qdingnet.bigdata.component.WeChatAlarmSender;
 import com.qdingnet.bigdata.config.AzkabanProperties;
 import com.qdingnet.bigdata.enums.BinLogTypeEnum;
+import com.qdingnet.bigdata.service.AzkabanErrorInfoService;
 import com.qdingnet.bigdata.utils.Constants;
 import com.qdingnet.bigdata.utils.GZIPUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -34,6 +36,9 @@ public class KafkaAzkanbanLogConsumer {
 
     @Resource
     WeChatAlarmSender sender;
+
+    @Resource
+    AzkabanErrorInfoService azkabanErrorInfoService;
 
     @Resource
     RedisTemplate<String, String> redisTemplate;
@@ -91,6 +96,14 @@ public class KafkaAzkanbanLogConsumer {
                         wechartMsg.setTitle("azkaban任务监控");
                         log.info("发现错误信息:{}，发送报警!!!", s1);
                         sender.send(wechartMsg);
+                        AzkabanErrorInfo azkabanErrorInfo = new AzkabanErrorInfo();
+                        azkabanErrorInfo.setExecId(Integer.valueOf(execId));
+                        azkabanErrorInfo.setErrorLog(s1);
+                        azkabanErrorInfo.setName(name);
+                        azkabanErrorInfo.setAttempt(Integer.valueOf(attempt));
+                        azkabanErrorInfo.setUploadTime(Long.valueOf(uploadTime));
+                        log.info("保存错误的任务信息");
+                        azkabanErrorInfoService.add(azkabanErrorInfo);
                     }
                 }
             }
