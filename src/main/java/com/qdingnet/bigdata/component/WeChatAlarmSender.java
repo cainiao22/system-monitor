@@ -1,5 +1,6 @@
 package com.qdingnet.bigdata.component;
 
+import com.alibaba.fastjson.JSON;
 import com.qdingnet.bigdata.beans.WechartMsg;
 import com.qdingnet.bigdata.utils.HttpClientUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -29,8 +30,8 @@ public class WeChatAlarmSender {
         Map<String, String> params = new HashMap<>(3);
         params.put("mobiles", msg.getMobiles().stream().collect(Collectors.joining("|")));
         params.put("title", msg.getTitle());
-        params.put("content", msg.getContent());
-        log.info("发送报警信息{} ---->>>> {}", String.join("|", msg.getMobiles()));
+        params.put("content", msg.getContent().replaceAll("\"", "'"));
+        log.info("发送报警信息{} ---->>>> {}", String.join("|", msg.getMobiles()), JSON.toJSONString(params));
         HttpClientUtils.doPost(ALARM_WECHAT, params);
     }
 }

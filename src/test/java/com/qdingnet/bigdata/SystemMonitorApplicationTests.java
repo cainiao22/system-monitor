@@ -1,5 +1,7 @@
 package com.qdingnet.bigdata;
 
+import com.qdingnet.bigdata.beans.WechartMsg;
+import com.qdingnet.bigdata.component.WeChatAlarmSender;
 import com.qdingnet.bigdata.config.AzkabanProperties;
 import com.qdingnet.bigdata.mq.KafkaAzkanbanLogConsumer;
 import com.qdingnet.bigdata.utils.GZIPUtils;
@@ -89,6 +91,17 @@ public class SystemMonitorApplicationTests {
         redisTemplate.opsForValue().set(redisKey, "1", 1, TimeUnit.MINUTES);
         s = redisTemplate.opsForValue().get(redisKey);
         System.out.println(s);
+    }
+
+    @Resource
+    WeChatAlarmSender sender;
+
+    @Test
+    public void testWechartSender(){
+        WechartMsg msg = new WechartMsg("");
+        msg.setContent("21-01-2019 00:34:42 CST log_Account_info_parse INFO - Exception in thread \"main\" org.apache.spark.SparkException: Application application_1547455590637_23615 finished with failed status");
+        msg.setMobiles(azkabanProperties.getAlarmPhones());
+        sender.send(msg);
     }
 
 }
