@@ -15,6 +15,7 @@ azkaban:
           - Error
           - ERROR
           - Exception
+          - 'final status: FAILED'
         whitelist:
           - IO_ERROR=0
           - Error 0 records
@@ -22,3 +23,4 @@ azkaban:
           - Engine - prioriy set to 0, because NumberFormatException, the value is
           - Failed to get database default, returning NoSuchObjectException
           - Error! Directory
+          - SparkListenerBus has already stopped

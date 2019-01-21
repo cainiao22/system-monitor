@@ -98,10 +98,8 @@ public class SystemMonitorApplicationTests {
 
     @Test
     public void testWechartSender(){
-        WechartMsg msg = new WechartMsg("");
-        msg.setContent("21-01-2019 00:34:42 CST log_Account_info_parse INFO - Exception in thread \"main\" org.apache.spark.SparkException: Application application_1547455590637_23615 finished with failed status");
-        msg.setMobiles(azkabanProperties.getAlarmPhones());
-        sender.send(msg);
+        List<String> blacklist = azkabanProperties.getBlacklist();
+        System.out.println(blacklist);
     }
 
 }
