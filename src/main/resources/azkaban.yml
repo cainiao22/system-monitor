@@ -28,3 +28,4 @@ azkaban:
           - Failed to get database default, returning NoSuchObjectException
           - Error! Directory
           - SparkListenerBus has already stopped
+          - Shuffle Errors
