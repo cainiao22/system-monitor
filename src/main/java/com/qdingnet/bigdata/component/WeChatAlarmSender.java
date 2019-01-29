@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -30,7 +31,10 @@ public class WeChatAlarmSender {
         Map<String, String> params = new HashMap<>(3);
         params.put("mobiles", msg.getMobiles().stream().collect(Collectors.joining("|")));
         params.put("title", msg.getTitle());
-        params.put("content", msg.getContent().replaceAll("\"", "'"));
+       /* params.put("content", msg.getContent()
+                .replaceAll("\"", "'")
+                .replaceAll("\\\\", ""));*/
+       params.put("content", msg.getContent());
         log.info("发送报警信息{} ---->>>> {}", String.join("|", msg.getMobiles()), JSON.toJSONString(params));
         HttpClientUtils.doPost(ALARM_WECHAT, params);
     }

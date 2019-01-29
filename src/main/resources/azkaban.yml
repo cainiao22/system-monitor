@@ -16,6 +16,10 @@ azkaban:
           - ERROR
           - Exception
           - 'final status: FAILED'
+          - Failed
+          - failed
+          - error
+          - exception
         whitelist:
           - IO_ERROR=0
           - Error 0 records

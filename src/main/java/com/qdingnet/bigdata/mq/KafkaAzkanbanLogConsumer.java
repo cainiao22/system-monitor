@@ -20,6 +20,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
+import java.net.URLEncoder;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -90,7 +91,7 @@ public class KafkaAzkanbanLogConsumer {
                         log.info("接收到错误信息:{}", record.value());
                         WechartMsg wechartMsg = new WechartMsg("azkaban任务监控");
                         String msg = "project:%s,exec_id:%s,uploadTime:%s, error:%s";
-                        msg = String.format(msg, name, execId, uploadTime, s1);
+                        msg = String.format(msg, name, execId, uploadTime, URLEncoder.encode(s1));
                         wechartMsg.setContent(msg);
                         wechartMsg.setMobiles(azkabanProperties.getAlarmPhones());
                         wechartMsg.setTitle("azkaban任务监控");
