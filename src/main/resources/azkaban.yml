@@ -29,3 +29,8 @@ azkaban:
           - Error! Directory
           - SparkListenerBus has already stopped
           - Shuffle Errors
+          - Failed Shuffles=0
+          - failed_
+          - _failed
+          - Failed Shuffles=0
+          - authenticate using SASL (unknown error)
