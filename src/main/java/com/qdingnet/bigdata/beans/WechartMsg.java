@@ -14,12 +14,13 @@ import java.util.List;
 @Data
 public class WechartMsg {
 
-    @NonNull
-    private String title;
+    private String touser;
 
-    //@NonNull
-    private String content;
+    private String toparty;
 
-    //@NonNull
-    private List<String> mobiles;
+    private String totag;
+
+    protected String msgtype;
+    private String agentid;
+    private int safe = 0;
 }

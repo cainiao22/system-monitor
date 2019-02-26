@@ -3,24 +3,26 @@ package com.qdingnet.bigdata.mq;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.qdingnet.bigdata.beans.AzkabanErrorInfo;
-import com.qdingnet.bigdata.beans.WechartMsg;
+import com.qdingnet.bigdata.beans.*;
 import com.qdingnet.bigdata.component.WeChatAlarmSender;
-import com.qdingnet.bigdata.config.AzkabanProperties;
 import com.qdingnet.bigdata.enums.BinLogTypeEnum;
+import com.qdingnet.bigdata.mapper.AzkabanMonitorBlacklistMapper;
+import com.qdingnet.bigdata.mapper.AzkabanMonitorOwnerMapper;
+import com.qdingnet.bigdata.mapper.AzkabanMonitorWhitelistMapper;
 import com.qdingnet.bigdata.service.AzkabanErrorInfoService;
 import com.qdingnet.bigdata.utils.Constants;
-import com.qdingnet.bigdata.utils.GZIPUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.tomcat.util.codec.binary.Base64;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
-import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -33,7 +35,16 @@ import java.util.concurrent.TimeUnit;
 public class KafkaAzkanbanLogConsumer {
 
     @Resource
-    AzkabanProperties azkabanProperties;
+    AzkabanMonitorOwnerMapper azkabanMonitorOwnerMapper;
+
+    @Resource
+    AzkabanMonitorBlacklistMapper azkabanMonitorBlacklistMapper;
+
+    @Resource
+    AzkabanMonitorWhitelistMapper azkabanMonitorWhitelistMapper;
+
+    @Value("${wechart.agentid}")
+    String agentId;
 
     @Resource
     WeChatAlarmSender sender;
@@ -44,7 +55,7 @@ public class KafkaAzkanbanLogConsumer {
     @Resource
     RedisTemplate<String, String> redisTemplate;
 
-    @KafkaListener(topics = {"azkaban_event_log"})
+    @KafkaListener(topics = {"azkaban_event_log", "sz_azkaban_event_log", "wyy_azkaban_event_log"})
     public void onReceive(ConsumerRecord<String, String> record) throws Exception {
         JSONObject jsonObject = JSON.parseObject(record.value());
         if(!BinLogTypeEnum.INSERT.name().equals(jsonObject.getString("type"))){
@@ -64,16 +75,17 @@ public class KafkaAzkanbanLogConsumer {
             if (name.indexOf(":") != -1) {
                 name = name.substring(name.lastIndexOf(":") + 1);
             }
-            String s = GZIPUtils.uncompressToString(Base64.decodeBase64(logInfo));
-            log.info("获取日志信息:{}", s.length());
+            //String s = GZIPUtils.uncompressToString(Base64.decodeBase64(logInfo));
+            String s = logInfo;
+            log.info("获取日志信息:{},topic:{}", s.length(), record.topic());
             if (s != null) {
                 String[] split = s.split("\n");
                 label:
                 for (String s1 : split) {
                     boolean isBlack = false;
-                    for (String black : azkabanProperties.getBlacklist()) {
-                        if(s1.contains(black)){
-                            String redisKey = getRedisKey(black, execId, name);
+                    for (AzkabanMonitorBlacklist black : azkabanMonitorBlacklistMapper.getListByBusinessType(record.topic())) {
+                        if(s1.contains(black.getContent())){
+                            String redisKey = getRedisKey(black.getContent(), execId, name);
                             if(redisTemplate.opsForValue().get(redisKey) != null){
                                 continue label;
                             }
@@ -83,18 +95,24 @@ public class KafkaAzkanbanLogConsumer {
                         }
                     }
                     if (isBlack) {
-                        for (String white : azkabanProperties.getWhitelist()) {
-                            if (s1.contains(white)) {
+                        for (AzkabanMonitorWhitelist white : azkabanMonitorWhitelistMapper.getListByBusinessType(record.topic())) {
+                            if (s1.contains(white.getContent())) {
                                 continue label;
                             }
                         }
                         log.info("接收到错误信息:{}", record.value());
-                        WechartMsg wechartMsg = new WechartMsg("azkaban任务监控");
+                        TextWechartMsg wechartMsg = new TextWechartMsg();
                         String msg = "project:%s,exec_id:%s,uploadTime:%s, error:%s";
-                        msg = String.format(msg, name, execId, uploadTime, URLEncoder.encode(s1));
+                        msg = String.format(msg, name, execId, uploadTime, s1);
+
+                        List<String> owners = new ArrayList<>();
+                        for (AzkabanMonitorOwner owner : azkabanMonitorOwnerMapper.getListByBusinessType(record.topic())) {
+                            String userName = owner.getUserName();
+                            owners.add(userName);
+                        }
                         wechartMsg.setContent(msg);
-                        wechartMsg.setMobiles(azkabanProperties.getAlarmPhones());
-                        wechartMsg.setTitle("azkaban任务监控");
+                        wechartMsg.setTouser(String.join("|", owners));
+                        wechartMsg.setAgentid(agentId);
                         log.info("发现错误信息:{}，发送报警!!!", s1);
                         sender.send(wechartMsg);
                         AzkabanErrorInfo azkabanErrorInfo = new AzkabanErrorInfo();

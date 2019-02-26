@@ -1,5 +1,6 @@
 package com.qdingnet.bigdata;
 
+import com.qdingnet.bigdata.beans.TextWechartMsg;
 import com.qdingnet.bigdata.beans.WechartMsg;
 import com.qdingnet.bigdata.component.WeChatAlarmSender;
 import com.qdingnet.bigdata.config.AzkabanProperties;
@@ -99,16 +100,13 @@ public class SystemMonitorApplicationTests {
 
     @Test
     public void testWechartSender(){
-        String msg = "project:%s,exec_id:%s,uploadTime:%s, error:%s";
-        String s1 = "17-01-2019 16:49:27 CST label2es INFO - Exception in thread \"main\" org.apache.spark.SparkException: Application application_1547455590637_19350 finished with failed status";
-        msg = String.format(msg, "ods_doorkeeper", 4231, "1548672111786", URLEncoder.encode(s1));
+        TextWechartMsg wechartMsg = new TextWechartMsg();
+        wechartMsg.setTouser("yanpengfei");
+        wechartMsg.setAgentid("1000002");
+        wechartMsg.setContent("你好\n\t\r\\\\流行");
 
-        WechartMsg wechartMsg = new WechartMsg("azkaban任务监控");
-        List<String> mobiles = new ArrayList<>();
-        mobiles.add("15313159809");
-        wechartMsg.setMobiles(mobiles);
-        wechartMsg.setContent(msg);
         sender.send(wechartMsg);
+        System.out.println();
     }
 
 }
