@@ -9,6 +9,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * @author yanpf
  * @date 2018/12/4 16:49
@@ -26,6 +29,8 @@ public class WeChatAlarmSender {
 
     @Value("${wechart.agentid}")
     String agentId;
+
+    private static final String proxyUrl = "http://m7-vm-bd-66:12051/httpProxy";
 
     /**
      * {
@@ -45,11 +50,16 @@ public class WeChatAlarmSender {
     @Async
     public void send(WechartMsg msg) {
         final String accessToken = this.getAccessToken();
-        HttpClientUtils.sendHttpPost(ALARM_WECHAT.replace("ACCESS_TOKEN", accessToken), msg);
+        Map<String, String> param = new HashMap<>();
+        param.put("url", ALARM_WECHAT.replace("ACCESS_TOKEN", accessToken));
+        param.put("params", JSON.toJSONString(msg));
+        HttpClientUtils.doPost(proxyUrl, param);
     }
 
     public String getAccessToken() {
-        String resp = HttpClientUtils.doGet(ACCESS_TOKEN_URL + agentId);
+        Map<String, String> param = new HashMap<>();
+        param.put("url", ACCESS_TOKEN_URL + agentId);
+        String resp = HttpClientUtils.doGet(proxyUrl, param);
         val jsonObject = JSON.parseObject(resp);
         if (jsonObject.getInteger("code") == 200) {
             String accessToken = jsonObject.getString("data");

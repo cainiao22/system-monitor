@@ -36,7 +36,7 @@ public class HttpClientUtils {
     /**
      * post方法(表单提交)
      */
-    public static void doPost(String url, Map<String, String> params) {
+    public static String doPost(String url, Map<String, String> params) {
         // 创建默认的httpClient实例.    
         CloseableHttpClient httpclient = HttpClients.createDefault();
         // 创建httppost    
@@ -56,13 +56,12 @@ public class HttpClientUtils {
             try {
                 HttpEntity entity = response.getEntity();
                 if (entity != null) {
-                    System.out.println("--------------------------------------");
-                    System.out.println("Response content: " + EntityUtils.toString(entity, "UTF-8"));
-                    System.out.println("--------------------------------------");
+                    return EntityUtils.toString(entity, "UTF-8");
                 }
             } finally {
                 response.close();
             }
+
         } catch (ClientProtocolException e) {
             e.printStackTrace();
         } catch (UnsupportedEncodingException e1) {
@@ -77,13 +76,15 @@ public class HttpClientUtils {
                 e.printStackTrace();
             }
         }
+
+        return null;
     }
 
     public static String sendHttpPost(String url, Object obj) {
         CloseableHttpClient httpClient = HttpClients.createDefault();
         HttpPost httpPost = new HttpPost(url);
         httpPost.addHeader("Content-Type", "application/json; charset=UTF-8");
-        System.out.println("发送参数:" + JSON.toJSONString(obj));
+        logger.info("发送参数:" + JSON.toJSONString(obj));
         try {
             httpPost.setEntity(new StringEntity(JSON.toJSONString(obj), ContentType.APPLICATION_JSON));
         } catch (Exception e) {
@@ -96,7 +97,7 @@ public class HttpClientUtils {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        System.out.println(response.getStatusLine().getStatusCode() + "\n");
+        logger.info(response.getStatusLine().getStatusCode() + "\n");
         HttpEntity entity = response.getEntity();
         String responseContent = null;
         try {
@@ -115,7 +116,7 @@ public class HttpClientUtils {
                 e.printStackTrace();
             }
         }
-        System.out.println(responseContent);
+        logger.info("返回信息:{}",responseContent);
 
 
         return responseContent;

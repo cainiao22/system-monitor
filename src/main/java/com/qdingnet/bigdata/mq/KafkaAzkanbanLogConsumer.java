@@ -11,6 +11,7 @@ import com.qdingnet.bigdata.mapper.AzkabanMonitorOwnerMapper;
 import com.qdingnet.bigdata.mapper.AzkabanMonitorWhitelistMapper;
 import com.qdingnet.bigdata.service.AzkabanErrorInfoService;
 import com.qdingnet.bigdata.utils.Constants;
+import com.qdingnet.bigdata.utils.GZIPUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.tomcat.util.codec.binary.Base64;
@@ -75,8 +76,7 @@ public class KafkaAzkanbanLogConsumer {
             if (name.indexOf(":") != -1) {
                 name = name.substring(name.lastIndexOf(":") + 1);
             }
-            //String s = GZIPUtils.uncompressToString(Base64.decodeBase64(logInfo));
-            String s = logInfo;
+            String s = GZIPUtils.uncompressToString(Base64.decodeBase64(logInfo));
             log.info("获取日志信息:{},topic:{}", s.length(), record.topic());
             if (s != null) {
                 String[] split = s.split("\n");
