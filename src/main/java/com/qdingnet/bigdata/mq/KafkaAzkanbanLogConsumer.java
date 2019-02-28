@@ -85,7 +85,7 @@ public class KafkaAzkanbanLogConsumer {
                     boolean isBlack = false;
                     for (AzkabanMonitorBlacklist black : azkabanMonitorBlacklistMapper.getListByBusinessType(record.topic())) {
                         if(s1.contains(black.getContent())){
-                            String redisKey = getRedisKey(black.getContent(), execId, name);
+                            String redisKey = getRedisKey(record.topic(), black.getContent(), execId, name);
                             if(redisTemplate.opsForValue().get(redisKey) != null){
                                 continue label;
                             }

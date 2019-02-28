@@ -64,6 +64,6 @@ management:
 
 
 wechart:
-   access_token_url: http://dev-qxapi.qdingnet.com/qx/wx/gettoken?type=
+   access_token_url: https://qxmg.qdingnet.com/api/qx/wx/gettoken?type=
    message_send_url: https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token=ACCESS_TOKEN
    agentid: 1000016
