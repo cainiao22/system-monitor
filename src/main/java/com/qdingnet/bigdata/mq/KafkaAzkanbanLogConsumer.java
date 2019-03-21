@@ -70,12 +70,7 @@ public class KafkaAzkanbanLogConsumer {
             String execId = item.getString("exec_id");
             String uploadTime = item.getString("upload_time");
             String attempt = item.getString("attempt");
-            if (StringUtils.isEmpty(name)) {
-                name = item.getString("exec_id");
-            }
-            if (name.indexOf(":") != -1) {
-                name = name.substring(name.lastIndexOf(":") + 1);
-            }
+
             String s = GZIPUtils.uncompressToString(Base64.decodeBase64(logInfo));
             log.info("获取日志信息:{},topic:{}", s.length(), record.topic());
             if (s != null) {
@@ -102,7 +97,7 @@ public class KafkaAzkanbanLogConsumer {
                         }
                         log.info("接收到错误信息:{}", record.value());
                         TextWechartMsg wechartMsg = new TextWechartMsg();
-                        String msg = "project:%s,exec_id:%s,uploadTime:%s, error:%s";
+                        String msg = "project:[%s],exec_id:%s,uploadTime:%s, error:%s";
                         msg = String.format(msg, name, execId, uploadTime, s1);
 
                         List<String> owners = new ArrayList<>();
