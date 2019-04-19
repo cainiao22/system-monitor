@@ -56,7 +56,7 @@ public class KafkaAzkanbanLogConsumer {
     @Resource
     RedisTemplate<String, String> redisTemplate;
 
-    @KafkaListener(topics = {"azkaban_event_log", "sz_azkaban_event_log", "wyy_azkaban_event_log"})
+    @KafkaListener(topics = {"azkaban_event_log", "sz_azkaban_event_log", "wyy_azkaban_event_log", "altas_azkaban_event_log"})
     public void onReceive(ConsumerRecord<String, String> record) throws Exception {
         JSONObject jsonObject = JSON.parseObject(record.value());
         if(!BinLogTypeEnum.INSERT.name().equals(jsonObject.getString("type"))){
@@ -97,8 +97,8 @@ public class KafkaAzkanbanLogConsumer {
                         }
                         log.info("接收到错误信息:{}", record.value());
                         TextWechartMsg wechartMsg = new TextWechartMsg();
-                        String msg = "project:[%s],exec_id:%s,uploadTime:%s, error:%s";
-                        msg = String.format(msg, name, execId, uploadTime, s1);
+                        String msg = "topic: [%s], project:[%s],exec_id:%s,uploadTime:%s, error:%s";
+                        msg = String.format(msg, record.topic(), name, execId, uploadTime, s1);
 
                         List<String> owners = new ArrayList<>();
                         for (AzkabanMonitorOwner owner : azkabanMonitorOwnerMapper.getListByBusinessType(record.topic())) {
