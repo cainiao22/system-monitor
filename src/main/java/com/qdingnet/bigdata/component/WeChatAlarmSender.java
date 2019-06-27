@@ -53,6 +53,7 @@ public class WeChatAlarmSender {
         Map<String, String> param = new HashMap<>();
         param.put("url", ALARM_WECHAT.replace("ACCESS_TOKEN", accessToken));
         param.put("params", JSON.toJSONString(msg));
+        log.info("发送post信息, params:{}", JSON.toJSONString(param));
         HttpClientUtils.doPost(proxyUrl, param);
     }
 
