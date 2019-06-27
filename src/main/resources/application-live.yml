@@ -45,7 +45,7 @@ spring:
   #数据源设置
   datasource:
     #连接MySQL
-    url: jdbc:mysql://mysql-qddata.qiandingyun.com:3306/ds
+    url: jdbc:mysql://mysql-bigdata-sys.qiandingyun.com:3306/ds
     username: ds
     password: 123456!
     driver-class-name: com.mysql.jdbc.Driver

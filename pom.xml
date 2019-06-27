@@ -93,6 +93,17 @@
 			<artifactId>spring-kafka-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>io.swagger</groupId>
+			<artifactId>swagger-core</artifactId>
+			<version>1.5.22</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.qdingnet.gateway</groupId>
+			<artifactId>qd-swagger-dubbx</artifactId>
+			<version>1.0.0</version>
+		</dependency>
 	</dependencies>
 
 	<build>
